@@ -264,7 +264,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   .ni.active .ni-icon { transform: scale(1.15); }
 
   /* ── Topbar ── */
-  .topbar { padding: .5rem .8rem; gap: .35rem; }
+  .topbar { padding: .5rem .8rem; gap: .35rem; justify-content: flex-end; }
   .tb-r { gap: .35rem; }
   #tb-sessions, #bc, #tb-date,
   .topbar .pill:not(#tb-cap) { display: none !important; }
@@ -273,7 +273,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   button[onclick*="logout"] { display: none; }
 
   /* ── Page headers ── */
-  .ph { padding: 1rem .8rem .6rem; flex-direction: column; gap: .4rem; }
+  .ph { padding: 1rem .8rem .6rem; flex-direction: column; gap: .4rem; align-items: center; text-align: center; }
   .ph-tag { font-size: .5rem; }
   .ph-h { font-size: 1.5rem; }
   .ph-sub { font-size: .58rem; }
@@ -428,10 +428,17 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 
   /* ── Stats ── */
   #page-stats .cgrid { grid-template-columns: 1fr !important; }
-  #page-stats .cgrid .cp canvas { max-height: 180px !important; }
+  #page-stats .cgrid .cp canvas { max-height: 200px !important; height: 200px !important; }
+  #asChart, #lsChart { height: 200px !important; max-height: 200px !important; }
   #page-stats canvas { max-height: 160px !important; }
   #page-stats .cp { padding: .7rem !important; }
   #page-stats .krow { grid-template-columns: 1fr 1fr !important; }
+  #page-stats div[style*="grid-template-columns:1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  #page-stats div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
 
   /* ── Capital & Stratégie ── */
   #page-capital .cgrid,
