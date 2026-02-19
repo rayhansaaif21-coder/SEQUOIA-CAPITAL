@@ -268,7 +268,9 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   /* ── Topbar ── */
   .topbar { padding: .5rem .8rem; gap: .35rem; }
   .tb-r { gap: .35rem; }
-  #tb-sessions, #bc { display: none; }
+  #tb-sessions, #bc, #tb-date,
+  .topbar .pill:not(#tb-cap) { display: none !important; }
+  .topbar .btn.bp { display: none !important; }
   .pill { font-size: .55rem; padding: .22rem .5rem; }
   button[onclick*="logout"] { display: none; }
 
@@ -2508,7 +2510,7 @@ function resetForm(){
   ['f-entry','f-exit','f-size','f-notes','f-after','f-stress','f-commission','f-funding'].forEach(id=>{
     const e=document.getElementById(id);if(e)e.value='';
   });
-  document.getElementById('f-lev').value='1';
+  // f-lev supprimé
   document.getElementById('f-asset').value='';
   document.getElementById('f-asset-c').style.display='none';
   document.getElementById('f-asset-c').value='';
@@ -3494,7 +3496,7 @@ async function loadAllData(){
   const {data:sd}=await sb.from('strategy').select('data').eq('user_id',uid).single();
   S=sd?sd.data:{};
   // Settings (capital, dn, wc, etc.)
-  const {data:set}=await sb.from('user_settings').select('data').eq('user_id',uid).single();
+  const {data:set}=await sb.from('user_settings').select('data').eq('user_id',uid).maybeSingle();
   if(set&&set.data){
     const d=set.data;
     if(d.capital)C=d.capital;
