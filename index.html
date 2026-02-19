@@ -184,6 +184,155 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 .ssgrid img{width:100%;border-radius:4px;border:1px solid var(--b1);cursor:pointer}
 .toast{position:fixed;bottom:2rem;right:2rem;background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:.8rem 1.2rem;font-size:.7rem;color:var(--tx);display:flex;align-items:center;gap:.6rem;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE MOBILE
+═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Layout général */
+  .app { flex-direction: column; }
+  
+  /* Sidebar → barre de navigation en bas */
+  .sb {
+    width: 100% !important;
+    min-height: unset;
+    height: 60px;
+    position: fixed;
+    bottom: 0; left: 0; right: 0; top: unset;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0;
+    border-right: none;
+    border-top: 1px solid var(--b0);
+    z-index: 200;
+    overflow: visible;
+  }
+  .sb.collapsed { width: 100% !important; height: 60px; }
+  .sb-logo { display: none; }
+  .nav-lbl { display: none !important; }
+  .sb > div { display: contents; }
+  .sb-bot { 
+    display: contents;
+    margin-top: 0;
+    border-top: none;
+    padding: 0;
+  }
+  .ni {
+    flex-direction: column;
+    gap: .15rem;
+    padding: .4rem .3rem;
+    width: auto;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .ni-txt {
+    opacity: 1 !important;
+    font-size: .42rem;
+    letter-spacing: .02em;
+    text-align: center;
+    line-height: 1;
+    max-width: 52px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ni-icon { width: 18px; height: 18px; font-size: .85rem; }
+  .ni::before { display: none; }
+  /* Cacher certains items sur mobile pour pas surcharger */
+  .ni[onclick*="timeline"],
+  .ni[onclick*="library"],
+  .ni[onclick*="watchlist"],
+  .ni[onclick*="calc"],
+  #sb-toggle-btn { display: none; }
+
+  /* Main content */
+  .main {
+    margin-bottom: 60px;
+    width: 100%;
+  }
+
+  /* Topbar */
+  .topbar {
+    padding: .6rem .8rem;
+    flex-wrap: wrap;
+    gap: .4rem;
+  }
+  .tb-r { gap: .4rem; flex-wrap: wrap; }
+  #tb-sessions { display: none; }
+  .pill { font-size: .52rem; padding: .25rem .5rem; }
+
+  /* Page header */
+  .ph { padding: 1rem; flex-direction: column; gap: .6rem; }
+  .ph-h { font-size: 1.6rem; }
+  .ph-r { flex-wrap: wrap; gap: .4rem; }
+
+  /* KPI rows */
+  .krow { grid-template-columns: 1fr 1fr !important; gap: .5rem; padding: .8rem; }
+  .kpi { padding: .8rem; }
+  .kv { font-size: 1.1rem !important; }
+
+  /* Charts grid */
+  .cgrid { grid-template-columns: 1fr !important; padding: .8rem; gap: .8rem; }
+  .cp { padding: .8rem; }
+
+  /* Tables */
+  .dts { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { font-size: .6rem; }
+  th, td { padding: .4rem .5rem; white-space: nowrap; }
+
+  /* Filter bar */
+  .fbar { padding: .6rem .8rem; gap: .4rem; flex-wrap: wrap; }
+  .fb { font-size: .58rem; padding: .3rem .6rem; }
+
+  /* Modals → plein écran sur mobile */
+  .ov { align-items: flex-end !important; padding: 0 !important; }
+  .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 92vh !important;
+    overflow-y: auto;
+  }
+  .mb { padding: .8rem !important; }
+  .fg2 { grid-template-columns: 1fr !important; }
+  .mh { padding: .8rem 1rem !important; }
+
+  /* Review overlay */
+  #ov-review { align-items: flex-end !important; padding: 0 !important; }
+  #ov-review > div {
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 95vh !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #ov-review > div > div:last-child {
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+
+  /* Dashboard */
+  #page-dashboard { padding-bottom: 1rem; }
+  .cal-grid { gap: 2px !important; }
+
+  /* Stats charts */
+  .cgrid > .cp canvas { max-height: 180px; }
+
+  /* Pages padding */
+  .page { padding-bottom: 1rem; }
+  .dt { margin: 0 .5rem .8rem; }
+  .dth { padding: .7rem 1rem; }
+  .dtl { font-size: .75rem; }
+}
+
+@media (max-width: 400px) {
+  .krow { grid-template-columns: 1fr 1fr !important; }
+  .ph-h { font-size: 1.3rem; }
+  .ni-txt { font-size: .38rem; }
+}
+
 </style>
 </head>
 <body>
@@ -3149,7 +3298,7 @@ async function authSubmit(){
   const errEl=document.getElementById('auth-error');
   const btn=document.getElementById('auth-btn');
   if(!email||!pwd){errEl.textContent='Email et mot de passe requis.';errEl.style.display='block';return;}
-  btn.textContent='...';btn.disabled=true;errEl.style.display='none';
+  btn.textContent="📲 Installer";btn.disabled=true;errEl.style.display='none';
   let error;
   if(mode==='signup'){
     const res=await sb.auth.signUp({email,password:pwd});
@@ -3157,7 +3306,7 @@ async function authSubmit(){
     if(!error){
       errEl.style.cssText='display:block;color:var(--gre);background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.2)';
       errEl.textContent='✓ Compte créé ! Vérifie ton email pour confirmer.';
-      btn.textContent='CRÉER MON COMPTE';btn.disabled=false;return;
+      btn.textContent="📲 Installer";btn.disabled=false;return;
     }
   } else {
     const res=await sb.auth.signInWithPassword({email,password:pwd});
@@ -4587,7 +4736,7 @@ window.addEventListener('beforeinstallprompt',(e)=>{
   // Afficher un bouton d'install discret
   const btn=document.createElement('button');
   btn.id='pwa-install-btn';
-  btn.innerHTML='📲 Installer l'app';
+  btn.innerHTML="📲 Installer l'app";
   btn.style.cssText='position:fixed;bottom:5rem;right:1.5rem;background:var(--acc);color:#0b0f1c;border:none;border-radius:8px;padding:.6rem 1rem;font-family:inherit;font-size:.65rem;font-weight:700;cursor:pointer;z-index:9998;box-shadow:0 4px 20px rgba(200,255,0,.3)';
   btn.onclick=async()=>{
     deferredPrompt.prompt();
