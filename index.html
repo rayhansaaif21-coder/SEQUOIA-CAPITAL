@@ -266,7 +266,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   /* ── Topbar ── */
   .topbar { padding: .5rem .8rem; gap: .35rem; justify-content: flex-end; }
   .tb-r { gap: .35rem; }
-  #tb-sessions, #bc, #tb-date,
+  #tb-sessions, #bc, #tb-date, #tb-btc,
   .topbar .pill:not(#tb-cap) { display: none !important; }
   .topbar .btn.bp { display: none !important; }
   .pill { font-size: .55rem; padding: .22rem .5rem; }
@@ -604,6 +604,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
     <div style="font-size:.65rem;color:var(--txd);letter-spacing:.1em" id="bc">Dashboard</div>
     <div class="tb-r">
       <div class="pill"><div class="pdot"></div>LIVE</div>
+      <div class="pill" id="tb-btc" style="color:var(--y);font-weight:700;gap:.35rem"><span style="font-size:.5rem;opacity:.6">BTC</span><span id="tb-btc-price">—</span></div>
       <div class="pill" id="tb-date"></div>
       <div id="tb-sessions" style="display:flex;gap:.35rem"></div>
       <div class="pill" id="tb-cap" style="color:var(--acc);cursor:pointer" onclick="go('capital')">Capital: —</div>
@@ -2791,9 +2792,11 @@ function getCap(){
   return c;
 }
 function pPct(pnl){
-  const cur=getCap();
-  if(!cur||pnl===null||pnl===undefined)return null;
-  return(pnl/cur*100).toFixed(2);
+  // Capital déployé = dépôt initial + tous les dépôts - retraits (sans P&L)
+  let capDeploye=C.initial||0;
+  (C.ledger||[]).forEach(o=>capDeploye+=o.type==='deposit'?o.amount:-o.amount);
+  if(!capDeploye||pnl===null||pnl===undefined)return null;
+  return(pnl/capDeploye*100).toFixed(2);
 }
 function setCap(){
   C.initial=parseFloat(document.getElementById('cap-init-i').value)||0;
@@ -3045,7 +3048,7 @@ function updKPIs(){
   const ddAbs=init>0?Math.min(0,cur-init):0;
   const ddPct=init>0?(ddAbs/init*100).toFixed(2):null;
   const kpnl=document.getElementById('k-pnl');kpnl.textContent=fp(pnl);kpnl.className='kv '+(pnl>=0?'g':'r');
-  document.getElementById('k-pnl-p').textContent=pPct(pnl)?(pPct(pnl)>=0?'+':'')+pPct(pnl)+'% du capital actuel':'—';
+  document.getElementById('k-pnl-p').textContent=pPct(pnl)?(pPct(pnl)>=0?'+':'')+pPct(pnl)+'% vs capital déployé':'—';
   document.getElementById('k-cap').textContent=cur?cur.toLocaleString('fr-FR',{maximumFractionDigits:0})+' $':'—';
   // Capital avec dépôts/retraits (sans PNL) pour le sous-titre
   let capWithOps=C.initial||0;
@@ -4737,10 +4740,7 @@ function renderTimeline(){
             <div style="font-size:.5rem;color:var(--txd);margin-top:.12rem">${fmtDate(worstT.date)}${worstT.setup?' · '+worstT.setup:''}</div>
           </div>`:'<div style="display:flex;align-items:center;justify-content:center;color:var(--txd);font-size:.6rem">Aucune perte ✓</div>'}
         </div>
-        ${lessons.length?`<div style="border-top:1px solid var(--b0);padding-top:.55rem;margin-top:.65rem">
-          <div style="font-size:.44rem;text-transform:uppercase;letter-spacing:.12em;color:var(--txd);margin-bottom:.3rem">Leçon(s)</div>
-          ${lessons.slice(0,1).map(l=>`<div style="font-size:.6rem;color:var(--txm);line-height:1.6;border-left:2px solid var(--acc);padding-left:.5rem">${l.length>100?l.slice(0,100)+'…':l}</div>`).join('')}
-        </div>`:''}
+
         <div style="text-align:center;padding-top:.6rem;font-size:.5rem;color:var(--txd);opacity:.6">Cliquer pour voir les ${d.trades.length} trades →</div>
       </div>
     </div>`;
@@ -5066,6 +5066,30 @@ function closeLightbox(){
   document.body.style.overflow='';
   document.onkeydown=null;
 }
+
+// ── PRIX BTC EN DIRECT ───────────────────────────────────────────────────
+async function fetchBTCPrice(){
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
+    const d=await r.json();
+    const price=d?.bitcoin?.usd;
+    const change=d?.bitcoin?.usd_24h_change;
+    const el=document.getElementById('tb-btc-price');
+    if(el&&price){
+      el.textContent=price.toLocaleString('en-US',{maximumFractionDigits:0})+' $';
+      const pill=document.getElementById('tb-btc');
+      if(pill&&change!==undefined){
+        const chgEl=document.getElementById('tb-btc-chg')||document.createElement('span');
+        chgEl.id='tb-btc-chg';
+        chgEl.style.cssText=`font-size:.48rem;color:${change>=0?'var(--gre)':'var(--red)'}`;
+        chgEl.textContent=(change>=0?'+':'')+change.toFixed(2)+'%';
+        if(!document.getElementById('tb-btc-chg'))pill.appendChild(chgEl);
+      }
+    }
+  }catch(e){}
+}
+fetchBTCPrice();
+setInterval(fetchBTCPrice, 30000); // Refresh toutes les 30s
 </script>
 <script>
 if('serviceWorker' in navigator){
