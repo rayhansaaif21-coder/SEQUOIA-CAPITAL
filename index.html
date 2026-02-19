@@ -1483,9 +1483,9 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
         </div>
       </div>
       <div class="mtc" id="t-ment">
-        <div class="fg2">
-          <div class="fsep" style="margin-top:0">— AVANT LE TRADE</div>
-          <div class="fg full"><label style="display:block;margin-bottom:.6rem">Émotion dominante</label>
+        <div class="fg2" style="padding:1rem 0;">
+          <div class="fsep" style="margin-top:.5rem;margin-bottom:.8rem">— AVANT LE TRADE</div>
+          <div class="fg full" style="margin-bottom:.5rem"><label style="display:block;margin-bottom:.8rem">Émotion dominante</label>
             <div class="egrid">
               <div class="eb" onclick="selEmo(this,'calm')"><span class="ee">😌</span>Calme</div>
               <div class="eb" onclick="selEmo(this,'confident')"><span class="ee">💪</span>Confiant</div>
@@ -1496,12 +1496,12 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
           </div>
           <div class="fg"><label>Qualité du sommeil</label><div class="stars" id="ss-stars" style="margin-top:.5rem"><span class="star" onclick="setSleep(1)">★</span><span class="star" onclick="setSleep(2)">★</span><span class="star" onclick="setSleep(3)">★</span><span class="star" onclick="setSleep(4)">★</span><span class="star" onclick="setSleep(5)">★</span></div></div>
           <div class="fg"><label>Stress (1-10)</label><input type="number" id="f-stress" min="1" max="10" placeholder="5"></div>
-          <div class="fsep">— APRÈS LE TRADE</div>
+          <div class="fsep" style="margin-top:1.5rem">— APRÈS LE TRADE</div>
           <div class="fg full"><label>Ressenti &amp; Leçon</label><textarea id="f-after" placeholder="Satisfaction, frustration, leçon retenue..."></textarea></div>
         </div>
       </div>
       <div class="mtc" id="t-ss">
-        <div class="fg full"><label style="display:block;margin-bottom:.5rem">Screenshots</label>
+        <div class="fg full" style="padding:1rem 0;"><label style="display:block;margin-bottom:1rem;font-size:.7rem;letter-spacing:.1em;color:var(--txd);text-transform:uppercase">Screenshots</label>
           <div class="dz" id="dz" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="hDrop(event)" onclick="document.getElementById('ssi').click()">
             <div style="font-size:1.8rem;opacity:.4">📸</div><p>Glisser-déposer ou cliquer</p>
             <input type="file" id="ssi" accept="image/*" multiple style="display:none" onchange="hFiles(this.files)">
@@ -2816,18 +2816,27 @@ function renderCapPage(){
   // Ledger sans colonne Note
   const body=document.getElementById('led-tbody');
   const ops=[...(C.ledger||[])].reverse();
-  if(!ops.length){body.innerHTML=erow(5,'Aucune opération enregistrée.');return;}
+  // Construire la ligne du capital initial
+  const initRow = C.initial && C.date ? `<tr style="opacity:.7">
+    <td>${C.date.split('-').reverse().join('/')}</td>
+    <td class="pp">★ Capital initial</td>
+    <td class="pp">+${C.initial.toLocaleString('fr-FR',{maximumFractionDigits:0})} $</td>
+    <td>${C.initial.toLocaleString('fr-FR',{maximumFractionDigits:0})} $</td>
+    <td></td>
+  </tr>` : '';
+  if(!ops.length && !initRow){body.innerHTML=erow(5,'Aucune opération enregistrée.');return;}
   let run=C.initial||0;
   const sorted=[...(C.ledger||[])].sort((a,b)=>new Date(a.date)-new Date(b.date));
   const capAfter={};
   sorted.forEach(o=>{run+=o.type==='deposit'?o.amount:-o.amount;capAfter[o.id]=run;});
-  body.innerHTML=ops.map(o=>`<tr>
+  const opsRows=ops.map(o=>`<tr>
     <td>${o.date.split('-').reverse().join('/')}</td>
     <td class="${o.type==='deposit'?'pp':'pn'}">${o.type==='deposit'?'↑ Dépôt':'↓ Retrait'}</td>
     <td class="${o.type==='deposit'?'pp':'pn'}">${o.type==='deposit'?'+':'−'}${o.amount.toLocaleString('fr-FR',{maximumFractionDigits:0})} $</td>
     <td>${(capAfter[o.id]||0).toLocaleString('fr-FR',{maximumFractionDigits:0})} $</td>
     <td><button class="btn btn-xs br" onclick="delOp(${o.id})">✕</button></td>
   </tr>`).join('');
+  body.innerHTML = opsRows + initRow;
 }
 
 // SAVE TRADE
