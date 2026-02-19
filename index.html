@@ -776,6 +776,14 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
       <div class="cbox"><div class="ctit" style="display:flex;justify-content:space-between;align-items:center">⊞ Position Size Calculator<button class="btn bg btn-sm" onclick="resetCalcPos()" title="Réinitialiser (sauf capital)">↺ Reset</button></div>
         <div class="fg2">
+          <div class="fg" style="grid-column:1/-1">
+            <label>Direction</label>
+            <div style="display:flex;gap:.5rem;margin-top:.3rem">
+              <button type="button" id="cdir-long" class="sub on" onclick="setCalcDir('long')" style="flex:1">📈 Long</button>
+              <button type="button" id="cdir-short" class="sub" onclick="setCalcDir('short')" style="flex:1">📉 Short</button>
+            </div>
+            <input type="hidden" id="c-dir" value="long">
+          </div>
           <div class="fg"><label>Capital ($) <span style="color:var(--acc);font-size:.55rem" id="c-cap-auto-lbl"></span></label><div class="iu"><input type="number" id="c-cap" placeholder="100000" oninput="calcPos()"><span class="u">$</span></div></div>
           <div class="fg"><label>Risque / trade (%)</label><div class="iu"><input type="number" id="c-risk" placeholder="1" step=".1" oninput="calcPos()"><span class="u">%</span></div></div>
           <div class="fg"><label>Prix d'entrée</label><input type="number" id="c-entry" placeholder="68420" oninput="calcPos()"></div>
@@ -905,11 +913,11 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
       <div><div class="ph-tag">// Historique</div><div class="ph-h">Timeline</div><div class="ph-sub">Ton parcours de trader — mois par mois</div></div>
     </div>
     <!-- KPIs globaux -->
-    <div class="krow" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.5rem">
+    <div class="krow" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem">
       <div class="kpi"><div class="kl">Mois actifs</div><div class="kv y" id="tl-k-months">—</div></div>
       <div class="kpi"><div class="kl">Meilleur mois</div><div class="kv g" id="tl-k-best">—</div></div>
       <div class="kpi"><div class="kl">Pire mois</div><div class="kv r" id="tl-k-worst">—</div></div>
-      <div class="kpi"><div class="kl">Mois verts / rouges</div><div class="kv" id="tl-k-ratio">—</div></div>
+      <div id="tl-k-ratio" style="display:none">—</div>
     </div>
     <!-- Courbe annuelle -->
     <div class="cp" style="margin-bottom:1.5rem"><div class="cl">P&L cumulé — Vue globale</div><canvas id="tlChart" height="80"></canvas></div>
@@ -1129,9 +1137,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
         <div class="fg"><label>Zone d'entrée idéale</label>
           <div class="iu"><input type="number" id="wl-entry" placeholder="42000" step=".01" oninput="updWLRR()"><span class="u">$</span></div>
         </div>
-        <div class="fg"><label>Prix d'alerte <span style="font-size:.55rem;color:var(--txd)">(notif. visuelle quand proche)</span></label>
-          <div class="iu"><input type="number" id="wl-alert-price" placeholder="42500" step=".01"><span class="u">$</span></div>
-        </div>
+
         <div class="fg"><label>Stop Loss</label>
           <div class="iu"><input type="number" id="wl-sl" placeholder="40000" step=".01" oninput="updWLRR()"><span class="u">$</span></div>
         </div>
@@ -1144,12 +1150,10 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
         <div class="fg"><label>Timeframe</label>
           <select id="wl-tf"><option>15M</option><option>1H</option><option selected>4H</option><option>8H</option><option>12H</option><option>1D</option><option>3D</option><option>1W</option></select>
         </div>
-        <div class="fg" style="grid-column:1/-1"><label>Date d'expiration <span style="font-size:.55rem;color:var(--txd)">(le setup ne sera plus valide après)</span></label>
-          <input type="date" id="wl-expiry">
+        <div class="fg" style="grid-column:1/-1"><label>Niveaux d'invalidation <span style="font-size:.55rem;color:var(--txd)">(conditions qui invalident le setup)</span></label>
+          <textarea id="wl-expiry" class="sta" style="min-height:60px" placeholder="Ex: Clôture au-dessus de 45 200$, cassure du support dynamique, volume supérieur à X..."></textarea>
         </div>
-        <div class="fg" style="grid-column:1/-1"><label>Tags <span style="font-size:.55rem;color:var(--txd)">(séparés par virgule)</span></label>
-          <input type="text" id="wl-tags" placeholder="#killzone, #support, #divergence RSI...">
-        </div>
+
       </div>
       <div style="display:flex;justify-content:flex-end;gap:.8rem;margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--b0);padding-bottom:.5rem">
         <button class="btn bg" onclick="closeMod('wl-add')">Annuler</button>
@@ -3268,11 +3272,29 @@ function renderDashMacro(){
   const wEvs=ME.filter(ev=>{const d=new Date(ev.date);return d>=mon&&d<=sun;}).sort((a,b)=>(a.date+a.time)<(b.date+b.time)?-1:1);
   if(!wEvs.length){list.innerHTML=`<div style="font-size:.6rem;color:var(--txd);padding:.5rem 0;text-align:center">Aucun événement cette semaine</div>`;return;}
   const impCol={high:'var(--red)',medium:'var(--ora)',low:'var(--txd)'};
-  list.innerHTML=wEvs.map(ev=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;border-radius:6px;background:var(--s1);border-left:2px solid ${impCol[ev.impact]||'var(--b1)'}">
-    <div style="font-size:.5rem;color:var(--txd);white-space:nowrap;min-width:38px">${ev.date.slice(8,10)}/${ev.date.slice(5,7)}/${ev.date.slice(0,4)} ${ev.time||''}</div>
-    <div style="font-size:.6rem;font-weight:600;color:var(--wh);flex:1;line-height:1.3">${ev.event}</div>
-    ${ev.actual?`<div style="font-size:.55rem;color:${ev.surprise==='positive'?'var(--gre)':ev.surprise==='negative'?'var(--red)':'var(--txd)'}">${ev.actual}</div>`:''}
-  </div>`).join('');
+  const dayNames=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  // Grouper par jour
+  const byDay={};
+  wEvs.forEach(ev=>{
+    const d=ev.date;
+    if(!byDay[d])byDay[d]=[];
+    byDay[d].push(ev);
+  });
+  const sortedDays=Object.keys(byDay).sort();
+  list.innerHTML=sortedDays.map(day=>{
+    const dayDate=new Date(day+'T12:00:00');
+    const dayLabel=dayNames[dayDate.getDay()]+' '+day.slice(8,10)+'/'+day.slice(5,7);
+    const evRows=byDay[day].map(ev=>`
+      <div style="display:flex;align-items:center;gap:.5rem;padding:.3rem .4rem;border-radius:5px;background:var(--s2)">
+        <div style="width:4px;height:4px;border-radius:50%;background:${impCol[ev.impact]||'var(--b1)'};flex-shrink:0"></div>
+        <div style="font-size:.58rem;font-weight:600;color:var(--wh);flex:1;line-height:1.3">${ev.event}</div>
+        ${ev.time?`<div style="font-size:.5rem;color:var(--txd);white-space:nowrap">${ev.time}</div>`:''}
+      </div>`).join('');
+    return`<div style="margin-bottom:.5rem">
+      <div style="font-size:.5rem;color:var(--acc);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem;padding:.15rem .4rem">${dayLabel}</div>
+      <div style="display:flex;flex-direction:column;gap:.2rem">${evRows}</div>
+    </div>`;
+  }).join('');
 }
 
 // CALENDAR
@@ -4375,6 +4397,17 @@ function fillCalcCap(){
   if(ruin&&!ruin.value){ruin.value=Math.round(cur);}
 }
 
+function setCalcDir(dir){
+  document.getElementById('c-dir').value=dir;
+  document.getElementById('cdir-long').classList.toggle('on',dir==='long');
+  document.getElementById('cdir-short').classList.toggle('on',dir==='short');
+  // Mettre à jour les placeholders SL/TP selon la direction
+  const slEl=document.getElementById('c-sl');
+  const tpEl=document.getElementById('c-tp');
+  if(dir==='long'){slEl.placeholder='67000';tpEl.placeholder='72000';}
+  else{slEl.placeholder='70000';tpEl.placeholder='62000';}
+  calcPos();
+}
 function calcPos(){
   const cap=parseFloat(document.getElementById('c-cap').value)||0;
   const risk=parseFloat(document.getElementById('c-risk').value)||0;
@@ -4382,14 +4415,19 @@ function calcPos(){
   const sl=parseFloat(document.getElementById('c-sl').value)||0;
   const tp=parseFloat(document.getElementById('c-tp').value)||0;
   const lev=parseFloat(document.getElementById('c-lev').value)||1;
+  const dir=document.getElementById('c-dir')?.value||'long';
   if(!cap||!risk||!entry||!sl){return;}
   const riskAmt=cap*risk/100;
+  // Vérification cohérence SL selon direction
+  const slOk=dir==='long'?sl<entry:sl>entry;
+  const tpOk=tp?(dir==='long'?tp>entry:tp<entry):true;
+  if(!slOk){document.getElementById('cr-size').textContent='⚠ SL incohérent';return;}
   const slPct=Math.abs(entry-sl)/entry;
   const posSz=riskAmt/(slPct*lev);
   const qty=posSz/entry;
-  const gainAmt=tp?Math.abs(tp-entry)/entry*posSz*lev:0;
+  const gainAmt=tp&&tpOk?Math.abs(tp-entry)/entry*posSz*lev:0;
   const gainPct=cap?gainAmt/cap*100:0;
-  const rr=riskAmt>0?gainAmt/riskAmt:0;
+  const rr=riskAmt>0&&gainAmt>0?gainAmt/riskAmt:0;
   document.getElementById('cr-risk').textContent=riskAmt.toLocaleString('fr-FR',{maximumFractionDigits:0})+' $';
   document.getElementById('cr-size').textContent=posSz.toLocaleString('fr-FR',{maximumFractionDigits:0})+' $';
   document.getElementById('cr-qty').textContent=qty.toFixed(4);
@@ -4689,8 +4727,8 @@ function updWLRR(){
 }
 function openWLAdd(){
   wlEditId=null;
-  ['wl-desc','wl-tags'].forEach(id=>document.getElementById(id).value='');
-  ['wl-entry','wl-alert-price','wl-sl','wl-tp'].forEach(id=>document.getElementById(id).value='');
+  ['wl-desc'].forEach(id=>document.getElementById(id).value='');
+  ['wl-entry','wl-sl','wl-tp'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('wl-asset').value='';
   document.getElementById('wl-asset-c').style.display='none';
   document.getElementById('wl-asset-c').value='';
@@ -4713,12 +4751,10 @@ function editWL(id){
   document.getElementById('wl-dir').value=s.dir||'long';
   document.getElementById('wl-desc').value=s.desc||'';
   document.getElementById('wl-entry').value=s.entry||'';
-  document.getElementById('wl-alert-price').value=s.alertPrice||'';
   document.getElementById('wl-sl').value=s.sl||'';
   document.getElementById('wl-tp').value=s.tp||'';
   document.getElementById('wl-tf').value=s.tf||'4H';
   document.getElementById('wl-expiry').value=s.expiry||'';
-  document.getElementById('wl-tags').value=s.tags||'';
   updWLRR();
   openMod('wl-add');
 }
@@ -4736,11 +4772,9 @@ function saveWL(){
     dir:document.getElementById('wl-dir').value,
     desc:document.getElementById('wl-desc').value.trim(),
     entry,
-    alertPrice:parseFloat(document.getElementById('wl-alert-price').value)||null,
     sl,tp,rr,
     tf:document.getElementById('wl-tf').value,
     expiry:document.getElementById('wl-expiry').value||null,
-    tags:document.getElementById('wl-tags').value.trim(),
     status:'active',
     createdAt:wlEditId?(WL.find(x=>x.id===wlEditId)?.createdAt||Date.now()):Date.now(),
     updatedAt:Date.now(),
