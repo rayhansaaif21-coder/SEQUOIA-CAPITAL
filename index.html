@@ -185,152 +185,266 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 .toast{position:fixed;bottom:2rem;right:2rem;background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:.8rem 1.2rem;font-size:.7rem;color:var(--tx);display:flex;align-items:center;gap:.6rem;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
 
+
 /* ═══════════════════════════════════════════════════════
-   RESPONSIVE MOBILE
+   RESPONSIVE MOBILE — OPTIMISÉ
 ═══════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* Layout général */
+
+  /* ── Layout ── */
   .app { flex-direction: column; }
-  
-  /* Sidebar → barre de navigation en bas */
+  .main { margin-bottom: 64px; width: 100%; overflow-x: hidden; }
+
+  /* ── Sidebar → Bottom nav ── */
   .sb {
     width: 100% !important;
-    min-height: unset;
-    height: 60px;
+    min-height: unset !important;
+    height: 64px;
     position: fixed;
     bottom: 0; left: 0; right: 0; top: unset;
     flex-direction: row;
     align-items: center;
     justify-content: space-around;
-    padding: 0;
+    padding: 0 .5rem;
     border-right: none;
-    border-top: 1px solid var(--b0);
+    border-top: 1px solid var(--b1);
     z-index: 200;
     overflow: visible;
+    background: var(--s0);
+    backdrop-filter: blur(12px);
   }
-  .sb.collapsed { width: 100% !important; height: 60px; }
-  .sb-logo { display: none; }
-  .nav-lbl { display: none !important; }
+  .sb.collapsed { width: 100% !important; height: 64px; }
+  .sb-logo, .nav-lbl, #sb-toggle-btn { display: none !important; }
   .sb > div { display: contents; }
-  .sb-bot { 
-    display: contents;
-    margin-top: 0;
-    border-top: none;
-    padding: 0;
+  .sb-bot { display: contents; margin: 0; border: none; padding: 0; }
+
+  /* Cacher les items secondaires dans la nav */
+  .ni[onclick*="timeline"],
+  .ni[onclick*="library"],
+  .ni[onclick*="watchlist"],
+  .ni[onclick*="calc"] { display: none !important; }
+
+  /* Bouton "Nouveau trade" → icône + dans la nav */
+  .sb-bot .ni[onclick*="trade"] {
+    background: var(--acc);
+    border-radius: 50%;
+    width: 44px !important;
+    height: 44px !important;
+    flex: 0 0 44px !important;
+    padding: 0 !important;
+    justify-content: center;
   }
+  .sb-bot .ni[onclick*="trade"] .ni-txt { display: none !important; }
+  .sb-bot .ni[onclick*="trade"] .ni-icon { color: #0b0f1c !important; filter: none !important; }
+
   .ni {
     flex-direction: column;
-    gap: .15rem;
-    padding: .4rem .3rem;
+    gap: .1rem;
+    padding: .3rem .2rem;
     width: auto;
     flex: 1;
     justify-content: center;
     align-items: center;
-    white-space: nowrap;
-    min-width: 0;
   }
   .ni-txt {
     opacity: 1 !important;
     font-size: .42rem;
-    letter-spacing: .02em;
+    letter-spacing: 0;
     text-align: center;
-    line-height: 1;
-    max-width: 52px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 48px;
   }
-  .ni-icon { width: 18px; height: 18px; font-size: .85rem; }
+  .ni-icon { width: 20px; height: 20px; }
   .ni::before { display: none; }
-  /* Cacher certains items sur mobile pour pas surcharger */
-  .ni[onclick*="timeline"],
-  .ni[onclick*="library"],
-  .ni[onclick*="watchlist"],
-  .ni[onclick*="calc"],
-  #sb-toggle-btn { display: none; }
+  .ni.active .ni-icon { transform: scale(1.15); }
 
-  /* Main content */
-  .main {
-    margin-bottom: 60px;
-    width: 100%;
+  /* ── Topbar ── */
+  .topbar { padding: .5rem .8rem; gap: .35rem; }
+  .tb-r { gap: .35rem; }
+  #tb-sessions, #bc { display: none; }
+  .pill { font-size: .55rem; padding: .22rem .5rem; }
+  button[onclick*="logout"] { display: none; }
+
+  /* ── Page headers ── */
+  .ph { padding: 1rem .8rem .6rem; flex-direction: column; gap: .4rem; }
+  .ph-tag { font-size: .5rem; }
+  .ph-h { font-size: 1.5rem; }
+  .ph-sub { font-size: .58rem; }
+  .ph-r { gap: .4rem; flex-wrap: wrap; }
+  .ph-r .btn { font-size: .6rem; padding: .4rem .8rem; }
+
+  /* ── KPI rows ── */
+  .krow {
+    grid-template-columns: 1fr 1fr !important;
+    gap: .5rem;
+    padding: .8rem;
   }
-
-  /* Topbar */
-  .topbar {
-    padding: .6rem .8rem;
-    flex-wrap: wrap;
-    gap: .4rem;
-  }
-  .tb-r { gap: .4rem; flex-wrap: wrap; }
-  #tb-sessions { display: none; }
-  .pill { font-size: .52rem; padding: .25rem .5rem; }
-
-  /* Page header */
-  .ph { padding: 1rem; flex-direction: column; gap: .6rem; }
-  .ph-h { font-size: 1.6rem; }
-  .ph-r { flex-wrap: wrap; gap: .4rem; }
-
-  /* KPI rows */
-  .krow { grid-template-columns: 1fr 1fr !important; gap: .5rem; padding: .8rem; }
-  .kpi { padding: .8rem; }
+  .kpi { padding: .9rem .8rem; border-radius: 10px; }
+  .kl { font-size: .52rem; }
   .kv { font-size: 1.1rem !important; }
+  .km { font-size: .52rem; }
 
-  /* Charts grid */
-  .cgrid { grid-template-columns: 1fr !important; padding: .8rem; gap: .8rem; }
-  .cp { padding: .8rem; }
+  /* ── Dashboard ── */
+  .cgrid { grid-template-columns: 1fr !important; padding: .5rem .8rem; gap: .7rem; }
+  .cp { padding: .9rem; border-radius: 10px; }
+  .cl { font-size: .65rem; }
+  #eqChart { max-height: 140px !important; }
 
-  /* Tables */
-  .dts { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { font-size: .6rem; }
-  th, td { padding: .4rem .5rem; white-space: nowrap; }
+  /* Calendrier PNL mobile */
+  .cal-grid { gap: 2px !important; }
+  .cal-day { font-size: .48rem !important; min-height: 32px !important; padding: .2rem !important; }
 
-  /* Filter bar */
-  .fbar { padding: .6rem .8rem; gap: .4rem; flex-wrap: wrap; }
-  .fb { font-size: .58rem; padding: .3rem .6rem; }
+  /* ── Tableau → Cartes swipables ── */
+  .dts { overflow: visible; }
+  #all-tbody tr,
+  #dash-tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: var(--s0);
+    border: 1px solid var(--b1);
+    border-radius: 12px;
+    margin: 0 .8rem .6rem;
+    padding: .9rem;
+    gap: .4rem;
+    cursor: pointer;
+    transition: border-color .2s, transform .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #all-tbody tr:active,
+  #dash-tbody tr:active { transform: scale(.98); border-color: var(--acc); }
 
-  /* Modals → plein écran sur mobile */
-  .ov { align-items: flex-end !important; padding: 0 !important; }
+  /* Cacher les colonnes peu importantes dans les cartes */
+  #all-tbody td:nth-child(n+4):not(:nth-child(6)):not(:nth-child(10)):not(:nth-child(16)),
+  #dash-tbody td:nth-child(n+3):not(:nth-child(6)):not(:nth-child(9)) { display: none; }
+
+  /* Cartes style */
+  #all-tbody td,
+  #dash-tbody td {
+    border: none !important;
+    padding: 0 !important;
+    font-size: .68rem;
+    background: transparent !important;
+  }
+  /* En-tête de carte : Asset + Direction */
+  #all-tbody td:first-child,
+  #dash-tbody td:first-child {
+    font-size: .58rem;
+    color: var(--txd);
+  }
+  #all-tbody td:nth-child(2),
+  #dash-tbody td:nth-child(2) {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: .95rem;
+    color: var(--wh);
+  }
+
+  /* Cacher thead sur mobile (remplacé par cartes) */
+  #page-trades table thead,
+  #page-dashboard table thead { display: none; }
+  #page-trades table,
+  #page-dashboard table { border: none !important; background: transparent !important; }
+  .dt { margin: 0 0 .8rem; border-radius: 0; border-left: none; border-right: none; }
+  .dth { padding: .7rem .8rem; }
+  .dtl { font-size: .72rem; }
+  .dts { padding: .4rem 0 !important; }
+
+  /* ── Filter bar ── */
+  .fbar { padding: .5rem .8rem; gap: .4rem; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .fb { font-size: .58rem; padding: .28rem .65rem; white-space: nowrap; flex-shrink: 0; }
+
+  /* ── Modals → Bottom sheet ── */
+  .ov {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
   .modal {
     width: 100% !important;
     max-width: 100% !important;
-    border-radius: 16px 16px 0 0 !important;
-    max-height: 92vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 90vh !important;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  .mb { padding: .8rem !important; }
-  .fg2 { grid-template-columns: 1fr !important; }
-  .mh { padding: .8rem 1rem !important; }
+  .mh { padding: .9rem 1rem !important; }
+  .mt { font-size: .85rem !important; }
+  .mb { padding: .8rem !important; gap: .7rem !important; }
 
-  /* Review overlay */
+  /* ── Trade form mobile ── */
+  .fg2 { grid-template-columns: 1fr 1fr !important; gap: .6rem !important; }
+  .fg2 .full { grid-column: 1 / -1; }
+  .fg { gap: .3rem !important; }
+  .fg label { font-size: .58rem !important; }
+  .fg input, .fg select, .fg textarea { font-size: .72rem !important; padding: .55rem .7rem !important; }
+  .mtabs { gap: 0; }
+  .mtab { font-size: .58rem; padding: .5rem .7rem; }
+
+  /* Boutons dans form */
+  .sub { font-size: .58rem !important; padding: .3rem .6rem !important; }
+  .fsep { font-size: .5rem !important; margin: .3rem 0 !important; }
+
+  /* Emotions grid */
+  .egrid { grid-template-columns: repeat(3, 1fr) !important; gap: .4rem !important; }
+  .eb { padding: .5rem .3rem !important; font-size: .52rem !important; }
+  .ee { font-size: .9rem !important; }
+
+  /* Stars */
+  .star { font-size: 1.1rem !important; }
+
+  /* Screenshots grid */
+  .ssgrid { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── Review overlay ── */
   #ov-review { align-items: flex-end !important; padding: 0 !important; }
   #ov-review > div {
-    border-radius: 16px 16px 0 0 !important;
+    border-radius: 20px 20px 0 0 !important;
     max-height: 95vh !important;
     width: 100% !important;
     max-width: 100% !important;
   }
   #ov-review > div > div:last-child {
-    padding: 1rem !important;
+    padding: .9rem !important;
     gap: 1rem !important;
   }
+  /* Heatmap + KPIs en colonne sur mobile */
+  #ov-review .hmap-kpi-grid,
+  #ov-review > div > div:last-child > div:first-child {
+    grid-template-columns: 1fr !important;
+  }
+  /* Sections review en 1 colonne */
+  #ov-review div[style*="grid-template-columns:1fr 1fr"],
+  #ov-review div[style*="grid-template-columns:1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  .hmap { gap: 2px !important; }
 
-  /* Dashboard */
-  #page-dashboard { padding-bottom: 1rem; }
-  .cal-grid { gap: 2px !important; }
+  /* ── Stats ── */
+  #page-stats .cgrid { grid-template-columns: 1fr !important; }
+  #page-stats canvas { max-height: 160px !important; }
+  #page-stats .krow { grid-template-columns: 1fr 1fr !important; }
 
-  /* Stats charts */
-  .cgrid > .cp canvas { max-height: 180px; }
+  /* ── Capital & Stratégie ── */
+  #page-capital .cgrid,
+  #page-strategy .sp-grid { grid-template-columns: 1fr !important; }
 
-  /* Pages padding */
-  .page { padding-bottom: 1rem; }
-  .dt { margin: 0 .5rem .8rem; }
-  .dth { padding: .7rem 1rem; }
-  .dtl { font-size: .75rem; }
+  /* ── Confirm modal ── */
+  #lib-confirm-modal .modal { max-width: 90% !important; margin: auto !important; }
+
+  /* ── Toast ── */
+  .toast { bottom: 5rem; right: .8rem; left: .8rem; max-width: unset; font-size: .68rem; }
+
+  /* ── Scrollbar invisible sur mobile ── */
+  ::-webkit-scrollbar { width: 0; height: 0; }
 }
 
-@media (max-width: 400px) {
+/* Petit iPhone SE etc */
+@media (max-width: 380px) {
+  .ph-h { font-size: 1.2rem; }
   .krow { grid-template-columns: 1fr 1fr !important; }
-  .ph-h { font-size: 1.3rem; }
-  .ni-txt { font-size: .38rem; }
+  .kv { font-size: .95rem !important; }
+  .ni-txt { font-size: .38rem; max-width: 40px; }
 }
 
 </style>
@@ -1573,7 +1687,15 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 const SUPA_URL='https://abgrfpltxfwxwnubekst.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiZ3JmcGx0eGZ3eHdudWJla3N0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0OTg1ODIsImV4cCI6MjA4NzA3NDU4Mn0.NAxvaHpnug_X3HfMc4o8Q6fcevVmR2aIMbMkBlzWO4M';
-const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{
+  auth:{
+    persistSession:true,
+    autoRefreshToken:true,
+    storage:window.localStorage,
+    storageKey:'sq_auth_session',
+    detectSessionInUrl:false
+  }
+});
 let currentUser=null;
 
 // Données en mémoire (chargées depuis Supabase au login)
@@ -2882,6 +3004,7 @@ function updKPIs(){
 }
 function renderDash(){
   const body=document.getElementById('dash-tbody'),r=T.slice(0,8);
+  if(renderMobileTradeCards(r,'dash-tbody'))return;
   if(!r.length){body.innerHTML=erow(11,'Aucun trade. Configurez votre capital et ajoutez votre premier trade.');return;}
   body.innerHTML=r.map(t=>{
     return`<tr onclick="openDet(${JSON.stringify(t).replace(/"/g,'&quot;')})">
@@ -2898,6 +3021,7 @@ function renderDash(){
 function renderTrades(){
   const body=document.getElementById('all-tbody'),ft=getFilt();
   if(!ft.length){body.innerHTML=erow(17,'Aucun trade dans cette catégorie.');return;}
+  if(renderMobileTradeCards(ft,'all-tbody'))return;
   body.innerHTML=ft.map(t=>`<tr onclick="openDet(${JSON.stringify(t).replace(/"/g,'&quot;')})">
     <td>${fmtDate(t.date)}</td><td><strong style="color:var(--wh)">${t.asset}</strong></td>
     <td><span class="badge ${t.dir==='long'?'bl':'bs'}">${t.dir.toUpperCase()}</span></td>
@@ -3396,6 +3520,105 @@ function hideApp(){
 function logout(){
   sb.auth.signOut();
   toast('Déconnexion...','g');
+}
+
+// ── MOBILE SWIPE CARDS ─────────────────────────────────────────────────────
+function initMobileCards(){
+  if(window.innerWidth > 768) return;
+  const rows = document.querySelectorAll('#all-tbody tr, #dash-tbody tr');
+  rows.forEach(row => {
+    let startX = 0, currentX = 0, swiping = false;
+    row.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      swiping = true;
+    }, {passive: true});
+    row.addEventListener('touchmove', e => {
+      if(!swiping) return;
+      currentX = e.touches[0].clientX - startX;
+      if(currentX < 0) {
+        row.style.transform = `translateX(${Math.max(currentX, -80)}px)`;
+        row.style.transition = 'none';
+      }
+    }, {passive: true});
+    row.addEventListener('touchend', () => {
+      swiping = false;
+      if(currentX < -60) {
+        row.style.transform = 'translateX(-80px)';
+        row.style.transition = 'transform .2s';
+        // Afficher bouton suppr
+        let delBtn = row.querySelector('.swipe-del');
+        if(!delBtn){
+          delBtn = document.createElement('button');
+          delBtn.className = 'swipe-del';
+          delBtn.textContent = '🗑';
+          delBtn.style.cssText = 'position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--red);color:#fff;border:none;font-size:1.2rem;cursor:pointer;border-radius:0 12px 12px 0;';
+          row.style.position = 'relative';
+          row.style.overflow = 'hidden';
+          row.appendChild(delBtn);
+          const delBtn2 = row.querySelector('td:last-child button');
+          if(delBtn2) delBtn.onclick = (e) => delBtn2.click();
+        }
+      } else {
+        row.style.transform = 'translateX(0)';
+        row.style.transition = 'transform .2s';
+        const delBtn = row.querySelector('.swipe-del');
+        if(delBtn) delBtn.remove();
+      }
+      currentX = 0;
+    });
+  });
+}
+
+// Appeler après chaque render
+const _origRender = typeof render === 'function' ? render : null;
+
+window.addEventListener('resize', () => {
+  if(window.innerWidth <= 768) setTimeout(initMobileCards, 100);
+});
+
+// ── RENDER MOBILE TRADE CARDS ──────────────────────────────────────────────
+function renderMobileTradeCards(trades, tbodyId) {
+  if(window.innerWidth > 768) return false; // laisser le tableau normal
+  const tbody = document.getElementById(tbodyId);
+  if(!tbody) return false;
+  
+  const filtered = tbodyId === 'dash-tbody' ? trades.slice(0,8) : trades;
+  
+  tbody.innerHTML = filtered.map(t => {
+    const pnlCol = t.pnl > 0 ? 'var(--gre)' : t.pnl < 0 ? 'var(--red)' : 'var(--txm)';
+    const pnlTxt = t.pnl !== null ? (t.pnl >= 0 ? '+' : '') + t.pnl.toFixed(0) + '$' : '—';
+    const dirBg = t.dir === 'long' ? 'rgba(0,229,160,.15)' : 'rgba(255,61,90,.15)';
+    const dirCol = t.dir === 'long' ? 'var(--gre)' : 'var(--red)';
+    const statusDot = t.status === 'open' ? 'var(--acc)' : 'var(--txd)';
+    const pctTxt = t.pnl !== null && t.size ? ((t.pnl/t.size)*100).toFixed(2)+'%' : '';
+    
+    return `<tr onclick="openDet(${JSON.stringify(t).replace(/"/g,'&quot;')})" style="cursor:pointer">
+      <td colspan="20" style="padding:0;border:none;background:transparent">
+        <div style="background:var(--s0);border:1px solid var(--b1);border-radius:12px;margin:.3rem .8rem;padding:.9rem 1rem;transition:border-color .2s" ontouchstart="this.style.borderColor='var(--acc)'" ontouchend="this.style.borderColor='var(--b1)'">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <div style="width:8px;height:8px;border-radius:50%;background:${statusDot}"></div>
+              <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;color:var(--wh)">${t.asset}</span>
+              <span style="font-size:.55rem;padding:.15rem .5rem;border-radius:20px;background:${dirBg};color:${dirCol};font-weight:700">${t.dir.toUpperCase()}</span>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:${pnlCol}">${pnlTxt}</div>
+              ${pctTxt ? `<div style="font-size:.52rem;color:${pnlCol};opacity:.8">${pctTxt}</div>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:.58rem;color:var(--txd)">${fmtDate(t.date)} ${t.setup ? '· '+t.setup : ''}</div>
+            <div style="display:flex;gap:.4rem;align-items:center">
+              ${t.entry ? `<span style="font-size:.55rem;color:var(--txm)">Entrée ${t.entry}</span>` : ''}
+              <button onclick="event.stopPropagation();delTrade(${t.id},event)" style="background:none;border:none;color:var(--red);font-size:.75rem;cursor:pointer;opacity:.6;padding:.2rem">✕</button>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  
+  return true;
 }
 
 function buildHmap(){
