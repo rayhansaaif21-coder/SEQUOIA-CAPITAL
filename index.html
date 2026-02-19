@@ -3484,7 +3484,7 @@ async function loadAllData(){
   const {data:rd}=await sb.from('reviews').select('data').eq('user_id',uid);
   R=rd?rd.map(r=>r.data):[];
   // Strategy
-  const {data:sd}=await sb.from('strategy').select('data').eq('user_id',uid).single();
+  const {data:sd}=await sb.from('strategy').select('data').eq('user_id',uid).maybeSingle();
   S=sd?sd.data:{};
   // Settings (capital, dn, wc, etc.)
   const {data:set}=await sb.from('user_settings').select('data').eq('user_id',uid).maybeSingle();
