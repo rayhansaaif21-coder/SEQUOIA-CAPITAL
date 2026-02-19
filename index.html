@@ -113,7 +113,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 .mt{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--wh)}
 .mx{width:28px;height:28px;background:var(--s1);border:1px solid var(--b1);border-radius:6px;color:var(--txm);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .mx:hover{color:var(--red);border-color:var(--red)}
-.mb{padding:2rem}
+.mb{padding:0}
 .mtabs{display:flex;border-bottom:1px solid var(--b0);margin-bottom:1.5rem}
 .mtab{padding:.6rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--txd);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none}
 .mtab:hover{color:var(--tx)}.mtab.on{color:var(--acc);border-bottom-color:var(--acc)}
@@ -649,7 +649,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
       <button class="fb" onclick="setF('loss',this)">Perdants</button>
     </div>
     <div class="dt"><div class="dts"><table>
-      <thead><tr><th>Date</th><th>Asset</th><th>Dir.</th><th>Entrée</th><th>Sortie</th><th>SL</th><th>TP</th><th>Taille</th><th>Lev.</th><th>P&amp;L</th><th>% Cap.</th><th>Durée</th><th>Strat.</th><th>Setup</th><th>TF</th><th>Statut</th><th></th></tr></thead>
+      <thead><tr><th>Date</th><th>Asset</th><th>Dir.</th><th>Entrée</th><th>Sortie</th><th>Taille</th><th>P&amp;L</th><th>% Cap.</th><th>Durée</th><th>Strat.</th><th>Setup</th><th>TF</th><th>Statut</th><th></th></tr></thead>
       <tbody id="all-tbody"></tbody>
     </table></div></div>
   </div>
@@ -1398,7 +1398,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
         <button class="mtab" onclick="swTab(this,'t-ment')">Mental</button>
         <button class="mtab" onclick="swTab(this,'t-ss')">Screenshots</button>
       </div>
-      <div class="mtc on" id="t-info">
+      <div class="mtc on" id="t-info" style="padding:.5rem 1.5rem 1rem">
         <div class="fg2">
           <div class="fg"><label>Asset *</label>
             <select id="f-asset" onchange="chkAsset()">
@@ -1444,7 +1444,6 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
             </div>
             <div class="iu"><input type="number" id="f-size" placeholder="50000" step=".00000001"><span class="u" id="su-lbl">$</span></div>
           </div>
-          <div class="fg"><label>Levier</label><input type="number" id="f-lev" placeholder="1" value="1" step=".1"></div>
           <div id="fees-section" style="display:none;grid-column:1/-1">
             <div class="fsep" style="margin-top:1.2rem">— FRAIS</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.8rem">
@@ -1461,7 +1460,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
           </div>
         </div><!-- /fg2 -->
       </div><!-- /t-info -->
-      <div class="mtc" id="t-anal">
+      <div class="mtc" id="t-anal" style="padding:.5rem 1.5rem 1rem">
         <div class="fg2">
           <div class="fg"><label>Stratégie</label>
             <select id="f-strat"><option value="">—</option><option>Scalping</option><option>Day Trading</option><option>Swing</option></select>
@@ -1487,8 +1486,8 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
           <div class="fg full"><label>Notes &amp; Analyse</label><textarea id="f-notes" placeholder="Raison du trade, niveaux clés..."></textarea></div>
         </div>
       </div>
-      <div class="mtc" id="t-ment">
-        <div class="fg2" style="padding:1rem 0;">
+      <div class="mtc" id="t-ment" style="padding:.5rem 1.5rem 1rem">
+        <div class="fg2">
           <div class="fsep" style="margin-top:.5rem;margin-bottom:.8rem">— AVANT LE TRADE</div>
           <div class="fg full" style="margin-bottom:.5rem"><label style="display:block;margin-bottom:.8rem">Émotion dominante</label>
             <div class="egrid">
@@ -1505,8 +1504,8 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
           <div class="fg full"><label>Ressenti &amp; Leçon</label><textarea id="f-after" placeholder="Satisfaction, frustration, leçon retenue..."></textarea></div>
         </div>
       </div>
-      <div class="mtc" id="t-ss">
-        <div class="fg full" style="padding:1rem 0;"><label style="display:block;margin-bottom:1rem;font-size:.7rem;letter-spacing:.1em;color:var(--txd);text-transform:uppercase">Screenshots</label>
+      <div class="mtc" id="t-ss" style="padding:.5rem 1.5rem 1rem">
+        <div class="fg full"><label style="display:block;margin-bottom:1rem;font-size:.7rem;letter-spacing:.1em;color:var(--txd);text-transform:uppercase">Screenshots</label>
           <div class="dz" id="dz" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="hDrop(event)" onclick="document.getElementById('ssi').click()">
             <div style="font-size:1.8rem;opacity:.4">📸</div><p>Glisser-déposer ou cliquer</p>
             <input type="file" id="ssi" accept="image/*" multiple style="display:none" onchange="hFiles(this.files)">
@@ -2575,7 +2574,7 @@ function editTrade(t){
   if(t.partialExits?.length){partialExits=[...t.partialExits];renderPartialExits();}
   document.getElementById('f-size').value=t.sizeRaw||t.size||'';
   if(t.sizeUnit==='asset')setSU('asset');
-  document.getElementById('f-lev').value=t.lev||1;
+  // f-lev supprimé
   if(t.mkt==='futures'||t.commission||t.funding)setMkt('futures');
   document.getElementById('f-commission').value=t.commission||'';
   document.getElementById('f-funding').value=t.funding||'';
@@ -2853,7 +2852,7 @@ function saveTrade(){
   if(!asset||!entry){toast('⚠ Asset et prix d\'entrée requis','r');return;}
   const exit=getEffectiveExit();
   const sizeRaw=parseFloat(document.getElementById('f-size').value)||0;
-  const lev=parseFloat(document.getElementById('f-lev').value)||1;
+  const lev=1; // levier fixé à 1 (champ supprimé)
   const dir=document.getElementById('f-dir').value;
   const status=document.getElementById('f-status').value;
   const closeDate=document.getElementById('f-cdate').value||null;
@@ -3047,8 +3046,7 @@ function renderTrades(){
     <td>${fmtDate(t.date)}</td><td><strong style="color:var(--wh)">${t.asset}</strong></td>
     <td><span class="badge ${t.dir==='long'?'bl':'bs'}">${t.dir.toUpperCase()}</span></td>
     <td>${t.entry.toLocaleString()}</td><td>${t.exit?t.exit.toLocaleString():'—'}</td>
-    <td>${t.sl?t.sl.toLocaleString():'—'}</td><td>${t.tp?t.tp.toLocaleString():'—'}</td>
-    <td>${t.size?t.size.toLocaleString()+' $':'—'}</td><td>${t.lev}x</td>
+    <td>${t.size?t.size.toLocaleString()+' $':'—'}</td>
     <td><span class="${pc(t.pnl)}">${fp(t.pnl)}</span></td>
     <td style="font-size:.65rem;color:var(--txm)">${t.pnl!==null&&C.initial?(t.pnl>=0?'+':'')+pPct(t.pnl)+'%':'—'}</td>
     <td>${t.duration!=null?t.duration+'j':'—'}</td>
@@ -3211,7 +3209,7 @@ function renderWeekday(){
   dc('wd');const ctx=document.getElementById('wdChart');if(!ctx)return;
   const m={1:0,2:0,3:0,4:0,5:0,6:0,0:0};
   T.filter(t=>t.pnl!==null).forEach(t=>{
-    const d=t.closeDate||t.date;
+    const d=t.date; // date d'ENTRÉE du trade (pas de fermeture)
     m[new Date(d).getDay()]+=t.pnl;
   });
   const vals=[m[1],m[2],m[3],m[4],m[5],m[6],m[0]].map(v=>Math.round(v*100)/100);
@@ -4971,7 +4969,8 @@ function openMonthModal(monthKey){
     const planBg=t.planRespect==='yes'?'rgba(0,229,160,.1)':t.planRespect==='no'?'rgba(255,61,90,.1)':'transparent';
     const planTxt=t.planRespect==='yes'?'✓ Oui':t.planRespect==='no'?'✗ Non':'—';
     const rowBg=isW?'rgba(0,229,160,.03)':isL?'rgba(255,61,90,.03)':'transparent';
-    return `<div onclick="openDet('${t.id}')" style="display:grid;grid-template-columns:95px 55px 45px 1fr 75px 70px;gap:.6rem;align-items:center;padding:.55rem .6rem;border-radius:7px;background:${rowBg};border:1px solid transparent;cursor:pointer;transition:all .15s;margin-bottom:.3rem" onmouseover="this.style.background='var(--s1)';this.style.borderColor='var(--b1)'" onmouseout="this.style.background='${rowBg}';this.style.borderColor='transparent'">
+    const tJson=JSON.stringify(t).replace(/"/g,'&quot;');
+    return `<div onclick="openDet(${tJson})" style="display:grid;grid-template-columns:95px 55px 45px 1fr 75px 70px;gap:.6rem;align-items:center;padding:.55rem .6rem;border-radius:7px;background:${rowBg};border:1px solid transparent;cursor:pointer;transition:all .15s;margin-bottom:.3rem" onmouseover="this.style.background='var(--s1)';this.style.borderColor='var(--b1)'" onmouseout="this.style.background='${rowBg}';this.style.borderColor='transparent'">
       <div style="font-size:.62rem;color:var(--txd)">${fmtDate(t.date)}</div>
       <div style="font-size:.68rem;font-weight:700;color:var(--wh)">${t.asset}</div>
       <div><span style="font-size:.52rem;padding:.12rem .4rem;border-radius:4px;background:${t.dir==='long'?'rgba(0,229,160,.15)':'rgba(255,61,90,.15)'};color:${t.dir==='long'?'var(--gre)':'var(--red)'};font-weight:700;text-transform:uppercase">${t.dir}</span></div>
