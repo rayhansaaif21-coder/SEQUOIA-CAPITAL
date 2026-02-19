@@ -427,15 +427,18 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   .hmap { gap: 2px !important; }
 
   /* ── Stats ── */
+  #page-stats { overflow-x: hidden !important; }
   #page-stats .cgrid { grid-template-columns: 1fr !important; }
-  #page-stats .cgrid .cp canvas { max-height: 200px !important; height: 200px !important; }
-  #asChart, #lsChart { height: 200px !important; max-height: 200px !important; }
-  #page-stats canvas { max-height: 160px !important; }
-  #page-stats .cp { padding: .7rem !important; }
+  #page-stats .cgrid .cp { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
+  #page-stats canvas { max-width: 100% !important; max-height: 180px !important; height: auto !important; }
+  #asChart, #lsChart { height: 180px !important; max-height: 180px !important; }
+  #page-stats .cp { padding: .8rem !important; overflow: hidden !important; }
   #page-stats .krow { grid-template-columns: 1fr 1fr !important; }
-  #stats-3col { grid-template-columns: 1fr !important; }
-  #stats-as-ls { grid-template-columns: 1fr !important; }
-  #asChart, #lsChart { height: 200px !important; max-height: 200px !important; }
+  #stats-3col { grid-template-columns: 1fr !important; width: 100% !important; }
+  #stats-as-ls { grid-template-columns: 1fr !important; width: 100% !important; }
+  #page-stats table { font-size: .52rem !important; width: 100% !important; table-layout: fixed !important; }
+  #page-stats table td, #page-stats table th { overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; padding: .2rem .3rem !important; }
+  #page-stats .cgrid[style*="1fr 1fr"] { grid-template-columns: 1fr !important; }
 
   /* ── Capital & Stratégie ── */
   #page-capital .cgrid,
