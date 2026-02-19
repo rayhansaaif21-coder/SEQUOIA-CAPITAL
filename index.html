@@ -186,6 +186,10 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 .toast.show{transform:translateY(0);opacity:1}
 
 
+/* Limiter la hauteur des charts donut sur desktop */
+#page-stats .cgrid canvas { max-height: 240px; object-fit: contain; }
+#page-stats .cp { min-height: unset; }
+
 /* ═══════════════════════════════════════════════════════
    RESPONSIVE MOBILE — OPTIMISÉ
 ═══════════════════════════════════════════════════════ */
@@ -361,16 +365,17 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
     padding: 0 !important;
   }
   .modal {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: calc(100% - 1rem) !important;
+    max-width: calc(100% - 1rem) !important;
     border-radius: 20px 20px 0 0 !important;
     max-height: 90vh !important;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    margin: 0 .5rem;
   }
-  .mh { padding: .9rem 1rem !important; }
+  .mh { padding: .9rem 1.2rem !important; }
   .mt { font-size: .85rem !important; }
-  .mb { padding: .8rem !important; gap: .7rem !important; }
+  .mb { padding: 1rem 1.2rem !important; gap: .7rem !important; }
 
   /* ── Trade form mobile ── */
   .fg2 { grid-template-columns: 1fr 1fr !important; gap: .6rem !important; }
@@ -422,7 +427,9 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 
   /* ── Stats ── */
   #page-stats .cgrid { grid-template-columns: 1fr !important; }
+  #page-stats .cgrid .cp canvas { max-height: 180px !important; }
   #page-stats canvas { max-height: 160px !important; }
+  #page-stats .cp { padding: .7rem !important; }
   #page-stats .krow { grid-template-columns: 1fr 1fr !important; }
 
   /* ── Capital & Stratégie ── */
@@ -1143,7 +1150,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
           <input type="text" id="wl-tags" placeholder="#killzone, #support, #divergence RSI...">
         </div>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap:.8rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--b0)">
+      <div style="display:flex;justify-content:flex-end;gap:.8rem;margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--b0);padding-bottom:.5rem">
         <button class="btn bg" onclick="closeMod('wl-add')">Annuler</button>
         <button class="btn bp" id="wl-save-btn" onclick="saveWL()">Enregistrer</button>
       </div>
@@ -1413,7 +1420,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
           </div>
           <div class="fsep">— PRIX</div>
           <div class="fg"><label>Prix d'entrée *</label><input type="number" id="f-entry" placeholder="68420" step=".01"></div>
-          <div class="fg"><label>Prix de sortie <span style="font-size:.55rem;color:var(--txd)">(ou sortie partielle ci-dessous)</span></label>
+          <div class="fg"><label>Prix de sortie</label>
             <input type="number" id="f-exit" placeholder="70000" step=".01" oninput="clearPartialExits()">
           </div>
           <!-- Sorties partielles -->
@@ -1428,16 +1435,16 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
           <div class="fg"><label>Taille de position</label>
             <div style="display:flex;gap:.4rem;margin-bottom:.4rem">
               <button type="button" class="sub on" id="su-u" onclick="setSU('usdt')">USDT $</button>
-              <button type="button" class="sub" id="su-a" onclick="setSU('asset')">UNITÉS ASSET</button>
+              <button type="button" class="sub" id="su-a" onclick="setSU('asset')">UNITÉS</button>
             </div>
             <div class="iu"><input type="number" id="f-size" placeholder="50000" step=".00000001"><span class="u" id="su-lbl">$</span></div>
           </div>
           <div class="fg"><label>Levier</label><input type="number" id="f-lev" placeholder="1" value="1" step=".1"></div>
           <div id="fees-section" style="display:none;grid-column:1/-1">
-            <div class="fsep">— FRAIS</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div class="fsep" style="margin-top:1.2rem">— FRAIS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.8rem">
               <div class="fg">
-                <label>Commission <span style="font-size:.55rem;color:var(--txd);font-weight:400">(aller + retour)</span></label>
+                <label>Commission</label>
                 <div class="iu"><input type="number" id="f-commission" placeholder="0" step=".01" min="0"><span class="u">$</span></div>
               </div>
               <div class="fg">
@@ -3161,7 +3168,7 @@ function renderCapOps(){
   dc('co');const ctx=document.getElementById('capOpsChart');if(!ctx)return;
   const ops=[...(C.ledger||[])].sort((a,b)=>new Date(a.date)-new Date(b.date));
   const fmtEU=s=>{const[y,m,d]=s.split('-');return`${d}/${m}`;};
-  let r=C.initial||0;const data=[r];const labels=['Initial'];
+  let r=C.initial||0;const data=[r];const labels=[C.date?fmtDate(C.date):'Départ'];
   ops.forEach(o=>{r+=o.type==='deposit'?o.amount:-o.amount;data.push(Math.round(r*100)/100);labels.push(fmtEU(o.date)+' '+(o.type==='deposit'?'↑':'↓'));});
   if(data.length<2){data.push(r);labels.push('Auj.');}
   CH.co=new Chart(ctx,{type:'line',data:{labels,datasets:[{data,borderColor:'#c8ff00',backgroundColor:'rgba(200,255,0,.05)',borderWidth:2,fill:true,tension:.3,pointRadius:4,pointBackgroundColor:'#c8ff00'}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:({raw})=>raw.toLocaleString('fr-FR',{maximumFractionDigits:0})+' $'}}},scales:{x:{grid:{color:CG.grid},ticks:{color:CG.text,font:{family:CG.font,size:9}}},y:{grid:{color:CG.grid},ticks:{color:CG.text,font:{family:CG.font,size:9},callback:v=>v.toLocaleString('fr-FR',{maximumFractionDigits:0})+'$'}}}}});
