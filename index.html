@@ -229,7 +229,8 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   .ni[onclick*="timeline"],
   .ni[onclick*="library"],
   .ni[onclick*="watchlist"],
-  .ni[onclick*="calc"] { display: none !important; }
+  .ni[onclick*="calc"],
+  .ni[onclick*="strategy"] { display: none !important; }
 
 
 
@@ -250,7 +251,13 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 48px;
+    max-width: 52px;
+    width: 52px;
+  }
+  .ni {
+    flex: 1;
+    min-width: 0;
+    max-width: 20%;
   }
   .ni-icon { width: 20px; height: 20px; }
   .ni::before { display: none; }
