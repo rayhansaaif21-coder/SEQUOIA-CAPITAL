@@ -113,7 +113,8 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 .mt{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--wh)}
 .mx{width:28px;height:28px;background:var(--s1);border:1px solid var(--b1);border-radius:6px;color:var(--txm);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .mx:hover{color:var(--red);border-color:var(--red)}
-.mb{padding:0}
+.mb{padding:1.5rem}
+#mod-trade .mb{padding:0}
 .mtabs{display:flex;border-bottom:1px solid var(--b0);margin-bottom:1.5rem}
 .mtab{padding:.6rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--txd);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none}
 .mtab:hover{color:var(--tx)}.mtab.on{color:var(--acc);border-bottom-color:var(--acc)}
@@ -229,18 +230,8 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   .ni[onclick*="watchlist"],
   .ni[onclick*="calc"] { display: none !important; }
 
-  /* Bouton "Nouveau trade" → icône + dans la nav */
-  .sb-bot .ni[onclick*="trade"] {
-    background: var(--acc);
-    border-radius: 50%;
-    width: 44px !important;
-    height: 44px !important;
-    flex: 0 0 44px !important;
-    padding: 0 !important;
-    justify-content: center;
-  }
-  .sb-bot .ni[onclick*="trade"] .ni-txt { display: none !important; }
-  .sb-bot .ni[onclick*="trade"] .ni-icon { color: #0b0f1c !important; filter: none !important; }
+  /* Bouton "Nouveau trade" caché sur mobile (bouton topbar + déjà dans nav) */
+  .sb-bot .ni[onclick*="trade"] { display: none !important; }
 
   .ni {
     flex-direction: column;
@@ -1482,10 +1473,10 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
             <select id="f-macro"><option value="">—</option><option>Risk-ON</option><option>Risk-OFF</option><option>Neutre</option></select>
           </div>
 </div>
-          <div class="fg"><label>Respect du plan</label>
+          <div class="fg" style="margin-top:1rem"><label>Respect du plan</label>
             <select id="f-plan"><option value="">—</option><option value="yes">Oui</option><option value="no">Non</option></select>
           </div>
-          <div class="fg full"><label>Notes &amp; Analyse</label><textarea id="f-notes" placeholder="Raison du trade, niveaux clés..."></textarea></div>
+          <div class="fg full" style="margin-top:.6rem"><label>Notes &amp; Analyse</label><textarea id="f-notes" placeholder="Raison du trade, niveaux clés..."></textarea></div>
         </div>
       </div>
       <div class="mtc" id="t-ment" style="padding:.5rem 1.5rem 1rem">
@@ -1531,7 +1522,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
       <div class="mt" id="det-title">Détail Trade</div>
       <div style="display:flex;gap:.5rem"><button class="btn bg btn-sm" id="det-edit">✏ Modifier</button><button class="mx" onclick="closeMod('detail')">✕</button></div>
     </div>
-    <div class="mb" id="det-body"></div>
+    <div class="mb" id="det-body" style="padding:1.5rem"></div>
   </div>
 </div>
 
