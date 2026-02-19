@@ -433,12 +433,9 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   #page-stats canvas { max-height: 160px !important; }
   #page-stats .cp { padding: .7rem !important; }
   #page-stats .krow { grid-template-columns: 1fr 1fr !important; }
-  #page-stats div[style*="grid-template-columns:1fr 1fr 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
-  #page-stats div[style*="grid-template-columns:1fr 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
+  #stats-3col { grid-template-columns: 1fr !important; }
+  #stats-as-ls { grid-template-columns: 1fr !important; }
+  #asChart, #lsChart { height: 200px !important; max-height: 200px !important; }
 
   /* ── Capital & Stratégie ── */
   #page-capital .cgrid,
@@ -681,11 +678,11 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
     <div class="cgrid" style="grid-template-columns:1fr">
       <div class="cp"><div class="cl">Distribution P&amp;L</div><canvas id="distChart" height="90"></canvas></div>
     </div>
-    <div class="cgrid" style="grid-template-columns:1fr 1fr">
-      <div class="cp"><div class="cl">Répartition Assets</div><canvas id="asChart" height="70"></canvas></div>
-      <div class="cp"><div class="cl">Long vs Short</div><canvas id="lsChart" height="70"></canvas></div>
+    <div class="cgrid" id="stats-as-ls" style="grid-template-columns:1fr 1fr">
+      <div class="cp"><div class="cl">Répartition Assets</div><canvas id="asChart" height="200"></canvas></div>
+      <div class="cp"><div class="cl">Long vs Short</div><canvas id="lsChart" height="200"></canvas></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--b0);border:1px solid var(--b0);border-radius:10px;overflow:hidden;margin-bottom:1.5rem">
+    <div id="stats-3col" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--b0);border:1px solid var(--b0);border-radius:10px;overflow:hidden;margin-bottom:1.5rem">
       <div class="cp"><div class="cl">Performance par Setup</div><div id="setup-bars" style="min-height:60px"></div></div>
       <div class="cp"><div class="cl">Win Rate par Asset</div><div id="asset-bars" style="min-height:60px"></div></div>
       <div class="cp"><div class="cl">Respect du Plan vs P&amp;L</div><div id="plan-bars" style="min-height:60px"></div></div>
