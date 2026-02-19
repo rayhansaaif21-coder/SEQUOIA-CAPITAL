@@ -3539,7 +3539,9 @@ async function loadAllData(){
   const {data:td}=await sb.from('trades').select('data').eq('user_id',uid);
   T=td?td.map(r=>r.data):[];
   // Reviews
-  const {data:rd}=await sb.from('reviews').select('data').eq('user_id',uid);
+  const {data:rd,error:rdErr}=await sb.from('reviews').select('data').eq('user_id',uid);
+  if(rdErr)console.error('load reviews error:',rdErr);
+  console.log('reviews raw:',rd);
   R=rd?rd.map(r=>r.data):[];
   // Strategy
   const {data:sd}=await sb.from('strategy').select('data').eq('user_id',uid).maybeSingle();
