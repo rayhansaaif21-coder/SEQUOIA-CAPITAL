@@ -3795,32 +3795,29 @@ function _doSaveReview(wLabel,pnl,pct,wT){
   const wins=wT.filter(t=>t.pnl>0).length;
   const wr=wT.length?Math.round(wins/wT.length*100):0;
   const violated=[...document.querySelectorAll('.chip.vio')].map(c=>c.textContent).join(', ');
-  R.unshift({
-    id:Date.now(),week:wLabel,pnl:Math.round(pnl*100)/100,pct,trades:wT.length,wr,discipline:disc,
+  // Conserver l'id existant si la revue existe déjà (pour éviter les doublons)
+  const existingRev=R.find(r=>r.week===wLabel);
+  const revId=existingRev?existingRev.id:Date.now();
+  const newRev={
+    id:revId,week:wLabel,pnl:Math.round(pnl*100)/100,pct,trades:wT.length,wr,discipline:disc,
     good:document.getElementById('rv-good').value,bad:document.getElementById('rv-bad').value,
     lesson:document.getElementById('rv-lesson').value,goals:document.getElementById('rv-goals')?.value||'',
     watch:document.getElementById('rv-watch').value,notes:document.getElementById('rv-notes').value,
     mental:document.getElementById('rv-mental').value,biais:document.getElementById('rv-biais').value,violated,
     macroRecap:document.getElementById('rv-macro-recap')?.value||'',
     narratives:document.getElementById('rv-narratives')?.value||'',
-  });
+  };
+  R=R.filter(r=>r.week!==wLabel);
+  R.unshift(newRev);
   if(currentUser){
-    sb.from('reviews').insert({id:R[0].id,user_id:currentUser.id,data:R[0]})
+    // Toujours upsert avec le bon id
+    sb.from('reviews').upsert({id:newRev.id,user_id:currentUser.id,data:newRev},{onConflict:'id'})
       .then(({error})=>{
-        if(error){
-          console.error('saveReview insert error:',error);
-          // Si la row existe déjà, on fait un update
-          if(error.code==='23505'||error.message?.includes('duplicate')){
-            sb.from('reviews').update({data:R[0]}).eq('id',R[0].id).eq('user_id',currentUser.id)
-              .then(({error:e2})=>{if(e2)console.error('saveReview update error:',e2);else console.log('✓ Review updated');});
-          } else {
-            toast('⚠ Erreur sauvegarde revue: '+error.message);
-          }
-        } else {
-          console.log('✓ Review saved');
-        }
+        if(error){console.error('saveReview error:',error);toast('⚠ Erreur: '+error.message);}
+        else{console.log('✓ Review saved/updated',newRev.id);}
       });
   }
+  renderReviews();
   toast('✓ Revue sauvegardée');
   closeReviewForm();
 }
