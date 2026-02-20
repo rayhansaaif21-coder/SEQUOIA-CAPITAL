@@ -3810,12 +3810,21 @@ function _doSaveReview(wLabel,pnl,pct,wT){
   R=R.filter(r=>r.week!==wLabel);
   R.unshift(newRev);
   if(currentUser){
-    // Toujours upsert avec le bon id
-    sb.from('reviews').upsert({id:newRev.id,user_id:currentUser.id,data:newRev},{onConflict:'id'})
-      .then(({error})=>{
-        if(error){console.error('saveReview error:',error);toast('⚠ Erreur: '+error.message);}
-        else{console.log('✓ Review saved/updated',newRev.id);}
-      });
+    if(existingRev){
+      // Mise à jour de la row existante
+      sb.from('reviews').update({data:newRev}).eq('id',existingRev.id).eq('user_id',currentUser.id)
+        .then(({error})=>{
+          if(error){console.error('saveReview update error:',error);toast('⚠ Erreur: '+error.message);}
+          else{console.log('✓ Review updated',existingRev.id);}
+        });
+    } else {
+      // Nouvelle revue
+      sb.from('reviews').insert({id:newRev.id,user_id:currentUser.id,data:newRev})
+        .then(({error})=>{
+          if(error){console.error('saveReview insert error:',error);toast('⚠ Erreur: '+error.message);}
+          else{console.log('✓ Review inserted',newRev.id);}
+        });
+    }
   }
   renderReviews();
   toast('✓ Revue sauvegardée');
