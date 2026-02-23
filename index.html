@@ -5136,12 +5136,16 @@ fetchBTCPrice();
 setInterval(fetchBTCPrice, 30000); // Refresh toutes les 30s
 </script>
 <script>
+// Désinstaller le service worker pour éviter les problèmes de cache
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js')
-      .then(r=>console.log('✓ SW registered'))
-      .catch(e=>console.log('SW error:',e));
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister());
+    if(regs.length) console.log('✓ SW désinstallé - rechargement propre');
   });
+  // Vider tous les caches
+  if(window.caches){
+    caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
+  }
 }
 
 // Bouton "Installer l'app" sur iOS/Android
