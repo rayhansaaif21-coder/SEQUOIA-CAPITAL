@@ -4949,7 +4949,7 @@ function renderWatchlist(){
     const ss=statusStyle[s.status]||statusStyle.active;
     const tags=s.tags?s.tags.split(',').map(t=>`<span style="background:var(--s1);border:1px solid var(--b1);border-radius:4px;padding:.1rem .45rem;font-size:.5rem;color:var(--txd)">${t.trim()}</span>`).join(''):'';
     const expiryColor=s.expiry&&new Date(s.expiry)<new Date(Date.now()+3*86400000)?'var(--ora)':'var(--txd)';
-    return`<div style="background:var(--s0);border:1px solid ${ss.border};border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s" onmouseover="this.style.borderColor='var(--b1)'" onmouseout="this.style.borderColor='${ss.border}'">
+    return`<div style="background:var(--s0);border:1px solid ${ss.border};border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s;cursor:pointer" onclick="openWLEdit(${s.id})" onmouseover="this.style.borderColor='var(--acc)';this.style.boxShadow='0 0 0 1px var(--acc)33'" onmouseout="this.style.borderColor='${ss.border}';this.style.boxShadow='none'">
       <!-- Header couleur direction -->
       <div style="height:3px;background:${s.dir==='long'?'var(--gre)':'var(--red)'}"></div>
       <div style="padding:.9rem 1rem;flex:1;display:flex;flex-direction:column;gap:.6rem">
@@ -4988,7 +4988,7 @@ function renderWatchlist(){
         <!-- Expiry -->
         ${s.expiry?`<div style="font-size:.55rem;color:${expiryColor}">⏱ Expire le ${new Date(s.expiry).toLocaleDateString('fr-FR')}</div>`:''}
         <!-- Actions -->
-        <div style="border-top:1px solid var(--b0);padding-top:.7rem;display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto">
+        <div onclick="event.stopPropagation()" style="border-top:1px solid var(--b0);padding-top:.7rem;display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto">
           ${s.status==='active'||s.status==='alert'?`
             <button class="btn bg btn-sm" onclick="setWLStatus(${s.id},'alert')" style="font-size:.56rem;color:#ff6bff;border-color:rgba(255,107,255,.3)">🔔 En alerte</button>
             <button class="btn bp btn-sm" onclick="setWLStatus(${s.id},'taken')" style="font-size:.56rem;flex:1">✓ Trade pris</button>
