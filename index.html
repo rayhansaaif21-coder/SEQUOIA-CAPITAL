@@ -526,6 +526,10 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
         <input type="password" id="auth-pwd" placeholder="••••••••" style="width:100%;background:var(--s1);border:1px solid var(--b1);border-radius:7px;color:var(--wh);font-family:inherit;font-size:.72rem;padding:.65rem .9rem;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--b1)'" onkeydown="if(event.key==='Enter')authSubmit()">
       </div>
       <div id="auth-error" style="display:none;font-size:.62rem;color:var(--red);background:rgba(255,61,90,.08);border:1px solid rgba(255,61,90,.2);border-radius:6px;padding:.5rem .8rem"></div>
+      <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.62rem;color:var(--txm)">
+        <input type="checkbox" id="auth-remember" checked style="accent-color:var(--acc);width:14px;height:14px">
+        Rester connecté
+      </label>
       <button onclick="authSubmit()" id="auth-btn" style="width:100%;background:var(--acc);color:#0b0f1c;border:none;border-radius:8px;padding:.75rem;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.05em">CONNEXION</button>
     </div>
     <div id="auth-signup-info" style="display:none;font-size:.58rem;color:var(--txd);text-align:center;line-height:1.6">
@@ -1172,8 +1176,17 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
           <textarea id="wl-desc" class="sta" style="min-height:70px" placeholder="Ex: Triangle de continuation sur support 42k, attente retest volume décroissant..."></textarea>
         </div>
         <div class="fsep" style="grid-column:1/-1">— NIVEAUX DE PRIX</div>
-        <div class="fg"><label>Zone d'entrée idéale</label>
-          <div class="iu"><input type="number" id="wl-entry" placeholder="42000" step=".01" oninput="updWLRR()"><span class="u">$</span></div>
+        <div class="fg" style="grid-column:1/-1">
+          <label>Entrées multiples <span style="font-size:.55rem;color:var(--txd)">(calcul du prix moyen pondéré)</span></label>
+          <div id="wl-entries-list" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:.5rem"></div>
+          <button type="button" onclick="addWLEntry()" class="btn bg btn-sm" style="width:100%">＋ Ajouter une entrée</button>
+          <div id="wl-avg-preview" style="margin-top:.6rem;padding:.6rem .9rem;background:var(--s1);border:1px solid var(--b0);border-radius:8px;font-size:.7rem;display:none">
+            <span style="color:var(--txd)">Prix moyen pondéré :</span>
+            <strong id="wl-avg-price" style="color:var(--acc);font-family:'Syne',sans-serif;font-size:1rem;margin-left:.5rem">—</strong>
+            <span style="color:var(--txd);margin-left:.5rem">$</span>
+            <span style="color:var(--txd);font-size:.6rem;margin-left:1rem" id="wl-avg-total"></span>
+          </div>
+          <input type="hidden" id="wl-entry" value="">
         </div>
 
         <div class="fg"><label>Stop Loss</label>
@@ -3521,7 +3534,11 @@ async function authSubmit(){
       btn.textContent="📲 Installer";btn.disabled=false;return;
     }
   } else {
+    const remember = document.getElementById('auth-remember')?.checked !== false;
     const res=await sb.auth.signInWithPassword({email,password:pwd});
+    if(!res.error && remember){
+      // Session longue durée déjà gérée par Supabase par défaut
+    }
     error=res.error;
   }
   if(error){
@@ -4790,7 +4807,7 @@ function updWLRR(){
 function openWLAdd(){
   wlEditId=null;
   ['wl-desc'].forEach(id=>document.getElementById(id).value='');
-  ['wl-entry','wl-sl','wl-tp'].forEach(id=>document.getElementById(id).value='');
+  ['wl-sl','wl-tp'].forEach(id=>document.getElementById(id).value='');resetWLEntries();
   document.getElementById('wl-asset').value='';
   document.getElementById('wl-asset-c').style.display='none';
   document.getElementById('wl-asset-c').value='';
@@ -4798,7 +4815,7 @@ function openWLAdd(){
   document.getElementById('wl-tf').value='4H';
   document.getElementById('wl-expiry').value='';
   document.getElementById('wl-rr-preview').textContent='—';
-  document.getElementById('wl-modal-title').textContent='＋ Nouveau Setup en Veille';
+  document.getElementById('wl-modal-title').textContent='＋ Nouveau Setup en Veille';resetWLEntries();
   document.getElementById('wl-save-btn').textContent='Enregistrer';
   openMod('wl-add');
 }
@@ -5083,6 +5100,64 @@ function closeLightbox(){
   document.onkeydown=null;
 }
 
+
+
+// ── CARNET SETUP : ENTRÉES MULTIPLES ──────────────────────────────────────
+let wlEntryCount = 0;
+function addWLEntry(price='', qty=''){
+  wlEntryCount++;
+  const id = wlEntryCount;
+  const list = document.getElementById('wl-entries-list');
+  const row = document.createElement('div');
+  row.id = 'wl-entry-row-'+id;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:.4rem;align-items:center';
+  row.innerHTML = `
+    <div class="iu"><input type="number" id="wl-ep-${id}" placeholder="Prix ($)" step=".01" value="${price}" oninput="calcWLAvg()" style="width:100%"><span class="u">$</span></div>
+    <div class="iu"><input type="number" id="wl-eq-${id}" placeholder="Quantité" step=".0001" value="${qty}" oninput="calcWLAvg()" style="width:100%"><span class="u">u</span></div>
+    <button type="button" onclick="removeWLEntry(${id})" style="background:var(--red);border:none;color:#fff;border-radius:6px;padding:.3rem .6rem;cursor:pointer;font-size:.8rem">✕</button>
+  `;
+  list.appendChild(row);
+  calcWLAvg();
+}
+function removeWLEntry(id){
+  const row = document.getElementById('wl-entry-row-'+id);
+  if(row) row.remove();
+  calcWLAvg();
+}
+function calcWLAvg(){
+  const rows = document.querySelectorAll('[id^="wl-entry-row-"]');
+  let totalVal = 0, totalQty = 0;
+  rows.forEach(row => {
+    const id = row.id.replace('wl-entry-row-','');
+    const p = parseFloat(document.getElementById('wl-ep-'+id)?.value)||0;
+    const q = parseFloat(document.getElementById('wl-eq-'+id)?.value)||0;
+    if(p>0 && q>0){ totalVal += p*q; totalQty += q; }
+  });
+  const avg = totalQty>0 ? totalVal/totalQty : 0;
+  const preview = document.getElementById('wl-avg-preview');
+  const avgEl = document.getElementById('wl-avg-price');
+  const totEl = document.getElementById('wl-avg-total');
+  if(avg>0 && preview){
+    preview.style.display='block';
+    avgEl.textContent = avg.toLocaleString('fr-FR',{maximumFractionDigits:4});
+    totEl.textContent = `Total : ${totalVal.toLocaleString('fr-FR',{maximumFractionDigits:0})} $ · ${totalQty.toLocaleString('fr-FR',{maximumFractionDigits:4})} unités`;
+    document.getElementById('wl-entry').value = avg.toFixed(4);
+  } else if(preview){
+    preview.style.display='none';
+    document.getElementById('wl-entry').value='';
+  }
+  updWLRR();
+}
+function resetWLEntries(){
+  wlEntryCount=0;
+  const list=document.getElementById('wl-entries-list');
+  if(list) list.innerHTML='';
+  const preview=document.getElementById('wl-avg-preview');
+  if(preview) preview.style.display='none';
+  const entryHid=document.getElementById('wl-entry');
+  if(entryHid) entryHid.value='';
+  addWLEntry(); // Ajouter une ligne vide par défaut
+}
 
 // ── TRI TABLEAU TRADES ───────────────────────────────────────────────────
 let tSortCol='date', tSortDir=1; // 1=asc, -1=desc, défaut: date asc
