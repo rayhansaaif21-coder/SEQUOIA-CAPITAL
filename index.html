@@ -3773,30 +3773,26 @@ function saveReview(){
   const dow=(now.getDay()+6)%7;
   const mon=new Date(now);mon.setDate(now.getDate()-dow+rvWeekOffset*7);mon.setHours(0,0,0,0);
   const sun=new Date(mon);sun.setDate(mon.getDate()+6);sun.setHours(23,59,59,999);
-  // Trades de cette semaine par date de fermeture (ou ouverture si pas fermé)
   const wT=T.filter(t=>{const d=new Date(t.closeDate||t.date);return d>=mon&&d<=sun;});
   const pnl=wT.filter(t=>t.pnl!==null).reduce((s,t)=>s+t.pnl,0);
   const wins=wT.filter(t=>t.pnl>0).length;
   const wr=wT.length?Math.round(wins/wT.length*100):0;
   const cur=getCap();const pct=cur>0?(pnl/cur*100).toFixed(2):null;
   const wLabel=fmtWeekLabel(mon,sun);
-  const violated=[...document.querySelectorAll('.chip.vio')].map(c=>c.textContent).join(', ');
-  // Bloquer si une revue existe déjà pour cette semaine
-  if(R.some(r=>r.week===wLabel)){
+  // Toujours passer l'existingRev à _doSaveReview AVANT de filtrer R
+  const existingRev=R.find(r=>r.week===wLabel);
+  if(existingRev){
     libConfirmAction(`Une revue existe déjà pour cette semaine (${wLabel}). La remplacer ?`,()=>{
-      R=R.filter(r=>r.week!==wLabel);
-      _doSaveReview(wLabel,pnl,pct,wT);
+      _doSaveReview(wLabel,pnl,pct,wT,existingRev);
     });
     return;
   }
-  _doSaveReview(wLabel,pnl,pct,wT);
+  _doSaveReview(wLabel,pnl,pct,wT,null);
 }
-function _doSaveReview(wLabel,pnl,pct,wT){
+function _doSaveReview(wLabel,pnl,pct,wT,existingRev){
   const wins=wT.filter(t=>t.pnl>0).length;
   const wr=wT.length?Math.round(wins/wT.length*100):0;
   const violated=[...document.querySelectorAll('.chip.vio')].map(c=>c.textContent).join(', ');
-  // Conserver l'id existant si la revue existe déjà (pour éviter les doublons)
-  const existingRev=R.find(r=>r.week===wLabel);
   const revId=existingRev?existingRev.id:Date.now();
   const newRev={
     id:revId,week:wLabel,pnl:Math.round(pnl*100)/100,pct,trades:wT.length,wr,discipline:disc,
@@ -3805,20 +3801,18 @@ function _doSaveReview(wLabel,pnl,pct,wT){
     watch:document.getElementById('rv-watch').value,notes:document.getElementById('rv-notes').value,
     mental:document.getElementById('rv-mental').value,biais:document.getElementById('rv-biais').value,violated,
     macroRecap:document.getElementById('rv-macro-recap')?.value||'',
-    narratives:document.getElementById('rv-narratives')?.value||'',
+    narratives:'',
   };
   R=R.filter(r=>r.week!==wLabel);
   R.unshift(newRev);
   if(currentUser){
     if(existingRev){
-      // Mise à jour de la row existante
       sb.from('reviews').update({data:newRev}).eq('id',existingRev.id).eq('user_id',currentUser.id)
         .then(({error})=>{
           if(error){console.error('saveReview update error:',error);toast('⚠ Erreur: '+error.message);}
           else{console.log('✓ Review updated',existingRev.id);}
         });
     } else {
-      // Nouvelle revue
       sb.from('reviews').insert({id:newRev.id,user_id:currentUser.id,data:newRev})
         .then(({error})=>{
           if(error){console.error('saveReview insert error:',error);toast('⚠ Erreur: '+error.message);}
